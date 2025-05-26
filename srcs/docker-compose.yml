@@ -1,49 +1,44 @@
 version: "3.5"
 
 volumes:
-  wordpress:
-    name: wordpress
-    driver: local
-    driver_opts:
-      device: /home/sdalaty/data/wordpress
-      o: bind
-      type: none
-
-# using bind mount for mariadb to persist data
-  mariadb:
-    name: mariadb
-    driver: local
-    driver_opts:
-      device: /home/sdalaty/data/mariadb
-      o: bind
-      type: none
+        wordpress:
+                name: wordpress
+                driver: local
+                driver_opts:
+                        device: /home/sdalaty/data/wordpress
+                        o: bind
+                        type: none
+        mariadb:
+                name: mariadb
+                driver: local
+                driver_opts:
+                        device: /home/sdalaty/data/mariadb
+                        o: bind
+                        type: none
 
 networks:
   inception:
     name: inception
     driver: bridge
-
-
 services:
   nginx:
     container_name: nginx
     build: ./requirements/nginx/.
-    image: nginx:nginx #image/tag
+    image: nginx:nginx
     cap_add:
-      - NET_BIND_SERVICE #use port less than 1024
+      - NET_BIND_SERVICE
     ports:
-      - "80:80" #http
-      - "443:443" #https
+     - "80:80"
+     - "443:443"
     depends_on:
       - wordpress
     volumes:
-      - wordpress:/var/www/html #display the file in the browser
+     - wordpress:/var/www/html
     networks:
       - inception
     env_file:
       - .env
     restart: always
-
   wordpress:
     container_name: wordpress
     build: ./requirements/wordpress/.
@@ -53,13 +48,12 @@ services:
     volumes:
       - wordpress:/var/www/html
     expose:
-      - 9000 #port for php-fpm 
+      - 9000
     env_file:
       - .env
     networks:
       - inception
     restart: always
-
   mariadb:
     container_name: mariadb
     build: ./requirements/mariadb/.

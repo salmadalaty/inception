@@ -1,14 +1,21 @@
 FROM debian:bullseye
 
-RUN apt-get update -y && \
-    apt-get install -y mariadb-server && \
-    apt-get upgrade -y
+RUN apt update && apt upgrade -y && \
+    apt install -y mariadb-server
 
-COPY ./conf/mariadb.conf /etc/mysql/mariadb.conf.d/50-server.cnf
+# Copy configuration and script
+COPY ./conf/my.conf /etc/mysql/mariadb.conf.d/50-server.cnf
 COPY ./tools/script.sh /
 
-EXPOSE 3306
+# Set permissions and socket dir
+RUN chmod +x /script.sh && \
+    mkdir -p /run/mysqld && \
+    chown -R mysql:mysql /run/mysqld
 
-RUN chmod +x /script.sh
+# Set environment variables (you can also set these from docker-compose or Docker CLI)
+ENV MYSQL_DATABASE=wordpress
+ENV MYSQL_USER=wpuser
+ENV MYSQL_PASSWORD=wppassword
+ENV MYSQL_DATABASE=salma
 
-CMD ["mysqld"]
+CMD ["/script.sh"]
