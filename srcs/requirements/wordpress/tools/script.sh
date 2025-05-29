@@ -1,42 +1,35 @@
 #!/bin/bash
 
-mkdir -p /var/www/html
-cd /var/www/html
+    mkdir /var/www/
+    mkdir /var/www/html
 
-# Download wp-cli
-curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-chmod +x wp-cli.phar
-mv wp-cli.phar /usr/local/bin/wp
+    cd /var/www/html
 
-# Download WordPress core files
-wp core download --allow-root
+    # Install WordPress commands line tool
 
-# Prepare wp-config.php
-cp wp-config-sample.php wp-config.php
-sed -i "s/database_name_here/$MYSQL_DATABASE/" wp-config.php
-sed -i "s/username_here/$MYSQL_USER/" wp-config.php
-sed -i "s/password_here/$MYSQL_PASSWORD/" wp-config.php
-sed -i "s/localhost/mariadb/" wp-config.php
+    curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar 
 
-# Wait for MariaDB to be ready
-echo "⏳ Waiting for MariaDB to be ready..."
-until wp db check --allow-root; do
-  echo "Waiting for DB..."
-  sleep 2
-done
+    chmod +x wp-cli.phar 
+    mv wp-cli.phar /usr/local/bin/wp
+    # Download WordPress
+    wp core download --allow-root
 
-# Run WP install
-wp core install \
-  --url=$DOMAIN_NAME \
-  --title="$WP_TITLE" \
-  --admin_user=$WP_AD \
-  --admin_password=$WP_AD_PASS \
-  --admin_email=$AD_MAIL \
-  --skip-email \
-  --allow-root
+    mv /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
 
-# Fix php-fpm port
-sed -i 's|listen = /run/php/php7.4-fpm.sock|listen = 9000|' /etc/php/7.4/fpm/pool.d/www.conf
-mkdir -p /run/php
+#sed  stream editor. It's used to search and replace lines in a file.
+    sed -i "s/define( 'DB_NAME', 'database_name_here' );/define( 'DB_NAME', '$MYSQL_DATABASE' );/" wp-config.php
 
-php-fpm7.4 -F
+    sed -i "s/define( 'DB_USER', 'username_here' );/define( 'DB_USER', '$MYSQL_USER' );/" wp-config.php
+
+    sed -i "s/define( 'DB_PASSWORD', 'password_here' );/define( 'DB_PASSWORD', '$MYSQL_PASSWORD' );/" wp-config.php
+
+    sed -i "s/localhost/mariadb/" wp-config.php
+    sleep 5
+
+
+    wp core install --url=$DOMAIN_NAME/ --title=$WP_TITLE --admin_user=$WP_AD --admin_password=$WP_AD_PASS --admin_email=$AD_MAIL --skip-email --allow-root
+
+    sed -i 's/listen = \/run\/php\/php7.4-fpm.sock/listen = 9000/g' /etc/php/7.4/fpm/pool.d/www.conf
+    mkdir /run/php
+
+    php-fpm7.4 -F
