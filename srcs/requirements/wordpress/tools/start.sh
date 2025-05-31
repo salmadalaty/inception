@@ -13,7 +13,7 @@
     mv wp-cli.phar /usr/local/bin/wp
     # Download WordPress
     wp core download --allow-root
-
+,
     mv /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
 
 #sed  stream editor. It's used to search and replace lines in a file.
