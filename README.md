@@ -38,4 +38,5 @@ The goal of this project is to build a containerized environment from scratch wi
    ```bash
    git clone https://github.com/yourusername/inception.git
    cd inception
+   make all
 
